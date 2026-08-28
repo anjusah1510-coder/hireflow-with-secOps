@@ -119,11 +119,11 @@ jobs:
       - name: Checkout GitOps repository
         uses: actions/checkout@v6
         with:
-          repository: ${{ env.GITOPS_REPO }}
+          repository: anjusah1510-coder/hireflow-gitops
           token: ${{ secrets.GITOPS_TOKEN }}
           path: gitops
           ref: main
-          persist-credentials: true
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Verify GitOps token access
@@ -172,8 +172,11 @@ jobs:
 
       - name: Push GitOps changes
         working-directory: gitops
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
         run: |
-          git push origin main
+          git remote set-url origin "https://x-access-token:${GITOPS_TOKEN}@github.com/anjusah1510-coder/hireflow-gitops.git"
+          git push origin HEAD:main
 
       - name: Deployment summary
         run: |
