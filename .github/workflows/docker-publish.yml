@@ -101,7 +101,7 @@ steps:
       echo "Frontend:" 
       echo "${{ env.FRONTEND_IMAGE }}:${{ steps.image-tag.outputs.build_tag }}" 
       echo "${{ env.FRONTEND_IMAGE }}:${{ steps.image-tag.outputs.sha_tag }}" 
-```
+
 
 update-gitops:
 name: Update GitOps Repository
@@ -217,4 +217,4 @@ steps:
 
       echo "" 
       echo "Rollback is possible by reverting the GitOps commit."
-```
+
