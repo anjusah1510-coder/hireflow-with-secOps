@@ -88,10 +88,12 @@ steps:
       echo "============================================"
       echo "IMAGES PUBLISHED"
       echo "============================================"
+
       echo ""
       echo "Backend:"
       echo "${{ env.BACKEND_IMAGE }}:${{ steps.image-tag.outputs.build_tag }}"
       echo "${{ env.BACKEND_IMAGE }}:${{ steps.image-tag.outputs.sha_tag }}"
+
       echo ""
       echo "Frontend:"
       echo "${{ env.FRONTEND_IMAGE }}:${{ steps.image-tag.outputs.build_tag }}"
@@ -195,14 +197,18 @@ steps:
       echo "============================================"
       echo "GITOPS DEPLOYMENT TRIGGERED"
       echo "============================================"
+
       echo ""
       echo "Backend image:"
       echo "${{ env.BACKEND_IMAGE }}:${{ needs.docker.outputs.build_tag }}"
+
       echo ""
       echo "Frontend image:"
       echo "${{ env.FRONTEND_IMAGE }}:${{ needs.docker.outputs.build_tag }}"
+
       echo ""
       echo "Argo CD will detect the GitOps commit."
+
       echo ""
       echo "Rollback is possible by reverting the GitOps commit."
 ```
