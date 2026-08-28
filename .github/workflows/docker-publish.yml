@@ -23,19 +23,16 @@ BACKEND_IMAGE: ghcr.io/anjusah1510-coder/hireflow-backend
 FRONTEND_IMAGE: ghcr.io/anjusah1510-coder/hireflow-frontend
 
 jobs:
-
 docker:
 name: Build and Push Images
-
-```
 runs-on: ubuntu-latest
 
+```
 outputs:
   build_tag: ${{ steps.image-tag.outputs.build_tag }}
   sha_tag: ${{ steps.image-tag.outputs.sha_tag }}
 
 steps:
-
   - name: Checkout source repository
     uses: actions/checkout@v6
 
@@ -66,11 +63,9 @@ steps:
       context: ./backend
       file: ./backend/Dockerfile
       push: true
-
       tags: |
         ${{ env.BACKEND_IMAGE }}:${{ steps.image-tag.outputs.build_tag }}
         ${{ env.BACKEND_IMAGE }}:${{ steps.image-tag.outputs.sha_tag }}
-
       cache-from: type=gha,scope=backend
       cache-to: type=gha,mode=max,scope=backend
 
@@ -80,14 +75,11 @@ steps:
       context: ./frontend
       file: ./frontend/Dockerfile
       push: true
-
       build-args: |
         VITE_API_URL=${{ vars.VITE_API_URL }}
-
       tags: |
         ${{ env.FRONTEND_IMAGE }}:${{ steps.image-tag.outputs.build_tag }}
         ${{ env.FRONTEND_IMAGE }}:${{ steps.image-tag.outputs.sha_tag }}
-
       cache-from: type=gha,scope=frontend
       cache-to: type=gha,mode=max,scope=frontend
 
@@ -96,12 +88,10 @@ steps:
       echo "============================================"
       echo "IMAGES PUBLISHED"
       echo "============================================"
-
       echo ""
       echo "Backend:"
       echo "${{ env.BACKEND_IMAGE }}:${{ steps.image-tag.outputs.build_tag }}"
       echo "${{ env.BACKEND_IMAGE }}:${{ steps.image-tag.outputs.sha_tag }}"
-
       echo ""
       echo "Frontend:"
       echo "${{ env.FRONTEND_IMAGE }}:${{ steps.image-tag.outputs.build_tag }}"
@@ -110,17 +100,14 @@ steps:
 
 update-gitops:
 name: Update GitOps Repository
-
-```
 needs: docker
-
 runs-on: ubuntu-latest
 
+```
 permissions:
   contents: read
 
 steps:
-
   - name: Checkout GitOps repository
     uses: actions/checkout@v6
     with:
@@ -173,8 +160,7 @@ steps:
         exit 0
       fi
 
-      git commit \
-        -m "deploy: build ${{ needs.docker.outputs.build_tag }}"
+      git commit -m "deploy: build ${{ needs.docker.outputs.build_tag }}"
 
       echo "CHANGED=true" >> "$GITHUB_ENV"
 
@@ -187,7 +173,6 @@ steps:
       fi
 
       for attempt in 1 2 3 4 5; do
-
         echo "Push attempt ${attempt}/5"
 
         git fetch origin main
@@ -200,7 +185,6 @@ steps:
 
         echo "Push failed. Retrying..."
         sleep $((attempt * 3))
-
       done
 
       echo "ERROR: Failed to push GitOps changes after 5 attempts."
@@ -211,18 +195,14 @@ steps:
       echo "============================================"
       echo "GITOPS DEPLOYMENT TRIGGERED"
       echo "============================================"
-
       echo ""
       echo "Backend image:"
       echo "${{ env.BACKEND_IMAGE }}:${{ needs.docker.outputs.build_tag }}"
-
       echo ""
       echo "Frontend image:"
       echo "${{ env.FRONTEND_IMAGE }}:${{ needs.docker.outputs.build_tag }}"
-
       echo ""
       echo "Argo CD will detect the GitOps commit."
-
       echo ""
       echo "Rollback is possible by reverting the GitOps commit."
 ```
