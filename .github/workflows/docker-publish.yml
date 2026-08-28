@@ -123,7 +123,7 @@ jobs:
           token: ${{ secrets.GITOPS_TOKEN }}
           path: gitops
           ref: main
-          persist-credentials: false
+          persist-credentials: true
           fetch-depth: 0
 
       - name: Verify GitOps token access
@@ -172,10 +172,7 @@ jobs:
 
       - name: Push GitOps changes
         working-directory: gitops
-        env:
-          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
         run: |
-          git remote set-url origin "https://x-access-token:${GITOPS_TOKEN}@github.com/anjusah1510-coder/hireflow-gitops.git"
           git push origin HEAD:main
 
       - name: Deployment summary
