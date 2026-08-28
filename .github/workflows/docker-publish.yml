@@ -18,9 +18,9 @@ permissions:
 env:
   REGISTRY: ghcr.io
   IMAGE_OWNER: devendra-5470
-  GITOPS_REPO: DEVENDRA-5470/hireflow-gitops
-  BACKEND_IMAGE: ghcr.io/devendra-5470/hireflow-backend
-  FRONTEND_IMAGE: ghcr.io/devendra-5470/hireflow-frontend
+  GITOPS_REPO: anjusah1510-coder/hireflow-gitops
+  BACKEND_IMAGE: ghcr.io/anjusah1510-coder/hireflow-backend
+  FRONTEND_IMAGE: ghcr.io/anjusah1510-coder/hireflow-frontend
 
 jobs:
 
