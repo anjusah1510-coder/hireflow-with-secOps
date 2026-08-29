@@ -1,3 +1,4 @@
+yaml
 name: Build Push and Deploy
 
 on:
@@ -18,9 +19,7 @@ permissions:
 env:
   REGISTRY: ghcr.io
   IMAGE_OWNER: anjusah1510-coder
-
   GITOPS_REPO: anjusah1510-coder/hireflow-gitops
-
   BACKEND_IMAGE: ghcr.io/anjusah1510-coder/hireflow-backend
   FRONTEND_IMAGE: ghcr.io/anjusah1510-coder/hireflow-frontend
 
