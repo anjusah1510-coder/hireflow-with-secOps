@@ -38,8 +38,19 @@ jobs:
 
     steps:
 
+      # --------------------------------------------------------
+      # CHECKOUT APPLICATION REPOSITORY
+      # --------------------------------------------------------
+
       - name: Checkout source repository
         uses: actions/checkout@v6
+        with:
+          token: ${{ github.token }}
+          fetch-depth: 1
+
+      # --------------------------------------------------------
+      # GENERATE IMAGE TAGS
+      # --------------------------------------------------------
 
       - name: Generate image tags
         id: image-tag
@@ -52,8 +63,16 @@ jobs:
           echo "Build tag: build-${GITHUB_RUN_NUMBER}"
           echo "SHA tag: ${GITHUB_SHA}"
 
+      # --------------------------------------------------------
+      # DOCKER BUILDX
+      # --------------------------------------------------------
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
+
+      # --------------------------------------------------------
+      # LOGIN TO GHCR
+      # --------------------------------------------------------
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
@@ -63,7 +82,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # --------------------------------------------------------
-      # BACKEND
+      # BUILD AND PUSH BACKEND
       # --------------------------------------------------------
 
       - name: Build and push backend
@@ -81,7 +100,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=backend
 
       # --------------------------------------------------------
-      # FRONTEND
+      # BUILD AND PUSH FRONTEND
       # --------------------------------------------------------
 
       - name: Build and push frontend
@@ -100,6 +119,10 @@ jobs:
 
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
+
+      # --------------------------------------------------------
+      # PRINT PUBLISHED IMAGES
+      # --------------------------------------------------------
 
       - name: Print published images
         run: |
@@ -131,28 +154,39 @@ jobs:
     steps:
 
       # --------------------------------------------------------
-      # CHECKOUT GITOPS REPOSITORY
+      # CHECK GITOPS TOKEN
       # --------------------------------------------------------
 
-      - name: Checkout GitOps repository
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ env.GITOPS_REPO }}
-          token: ${{ secrets.GITOPS_TOKEN }}
-          ref: main
-          path: gitops
-          fetch-depth: 0
-          persist-credentials: true
-
-      # --------------------------------------------------------
-      # VERIFY GITOPS REPOSITORY
-      # --------------------------------------------------------
-
-      - name: Verify GitOps repository
-        working-directory: gitops
+      - name: Check GITOPS_TOKEN
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
         run: |
-          echo "GitOps repository:"
-          git remote -v
+          if [ -z "$GITOPS_TOKEN" ]; then
+            echo "ERROR: GITOPS_TOKEN is empty or not available."
+            exit 1
+          fi
+
+          echo "GITOPS_TOKEN is available."
+
+      # --------------------------------------------------------
+      # CLONE GITOPS REPOSITORY
+      # --------------------------------------------------------
+
+      - name: Clone GitOps repository
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+        run: |
+          git clone \
+            "https://x-access-token:${GITOPS_TOKEN}@github.com/${GITOPS_REPO}.git" \
+            gitops
+
+          cd gitops
+
+          git checkout main
+
+          echo "============================================"
+          echo "GITOPS REPOSITORY"
+          echo "============================================"
 
           echo ""
           echo "Current branch:"
@@ -163,7 +197,7 @@ jobs:
           git rev-parse HEAD
 
       # --------------------------------------------------------
-      # CONFIGURE GIT
+      # CONFIGURE GIT IDENTITY
       # --------------------------------------------------------
 
       - name: Configure Git identity
@@ -225,18 +259,20 @@ jobs:
             -m "deploy: build ${{ needs.docker.outputs.build_tag }}"
 
       # --------------------------------------------------------
-      # PUSH TO GITOPS
+      # PUSH CHANGES
       # --------------------------------------------------------
 
       - name: Push GitOps changes
         working-directory: gitops
         run: |
-          echo "Pushing GitOps changes..."
+          echo "============================================"
+          echo "PUSHING GITOPS CHANGES"
+          echo "============================================"
 
           git push origin main
 
       # --------------------------------------------------------
-      # SUMMARY
+      # DEPLOYMENT SUMMARY
       # --------------------------------------------------------
 
       - name: Deployment summary
