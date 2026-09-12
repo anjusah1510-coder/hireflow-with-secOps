@@ -7,11 +7,12 @@ RUN apk update && apk upgrade --no-cache
 
 COPY package*.json ./
 
-# Install application dependencies
-RUN npm ci
-
-# Update npm to get newer bundled dependencies
-RUN npm install -g npm@latest
+# Make npm more tolerant of transient network failures
+RUN npm config set fetch-retries 5 \
+    && npm config set fetch-retry-factor 2 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000 \
+    && npm ci
 
 COPY . .
 
